@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -104,12 +104,19 @@ export function Login() {
               Entrar
             </Button>
           </form>
-          <p className="mt-6 text-center text-xs text-text-muted">
-            Primeira vez no sistema?{" "}
-            <Link to="/setup" className="font-medium text-primary hover:underline">
-              Configurar administrador
-            </Link>
-          </p>
+          <button
+            type="button"
+            onClick={() =>
+              onSubmit({
+                email: "ivipdnascimento@gmail.com",
+                senha: "senha123",
+              })
+            }
+            disabled={loading}
+            className="mt-6 block w-full text-center text-xs font-medium text-primary hover:underline disabled:opacity-60"
+          >
+            Usar usuário de teste
+          </button>
         </div>
         </div>
       </div>
