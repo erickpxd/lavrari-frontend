@@ -1,12 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { api } from "@/lib/api"
-import type { Usuario } from "@/lib/types"
+import type { Usuario, VinculoUsuario } from "@/lib/types"
 
 export function useUsuarios(enabled = true) {
   return useQuery({
     queryKey: ["usuarios"],
     queryFn: () => api.get<Usuario[]>("/usuarios"),
     enabled,
+  })
+}
+
+export function useMeusVinculos(idUsuario?: string) {
+  return useQuery({
+    queryKey: ["usuarios", idUsuario, "vinculos"],
+    queryFn: () =>
+      api.get<VinculoUsuario[]>(`/usuarios/${idUsuario}/vinculos`),
+    enabled: !!idUsuario,
   })
 }
 

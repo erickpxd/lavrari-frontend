@@ -10,7 +10,6 @@ import type { ChatMensagem } from "@/lib/types"
 
 const SUGESTOES = [
   "Quais obras estão em risco?",
-  "RDOs pendentes esta semana?",
   "Alertas críticos hoje?",
 ]
 

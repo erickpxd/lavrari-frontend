@@ -4,7 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
 import { Plus, Loader2, Building2, ImagePlus, X } from "lucide-react"
-import { useEmpresas, useCreateEmpresa } from "@/hooks/useEmpresas"
+import {
+  useEmpresas,
+  useCreateEmpresa,
+  useUploadEmpresaLogo,
+} from "@/hooks/useEmpresas"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -113,6 +117,7 @@ export function Empresas() {
                 <TableHead className="w-16">Logo</TableHead>
                 <TableHead>Razão Social</TableHead>
                 <TableHead>CNPJ</TableHead>
+                <TableHead className="w-28 text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -134,6 +139,9 @@ export function Empresas() {
                   <TableCell className="font-medium">{e.razao_social}</TableCell>
                   <TableCell className="font-mono text-sm text-text-secondary">
                     {cnpjMask(e.cnpj)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <EmpresaLogoUpload id={e.id_empresa} />
                   </TableCell>
                 </TableRow>
               ))}
@@ -220,5 +228,45 @@ export function Empresas() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+function EmpresaLogoUpload({ id }: { id: string }) {
+  const upload = useUploadEmpresaLogo(id)
+  const ref = useRef<HTMLInputElement>(null)
+
+  function handle(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ""
+    if (!file) return
+    upload.mutate(file, {
+      onSuccess: () => toast.success("Logo atualizada!"),
+      onError: () => toast.error("Falha ao enviar logo"),
+    })
+  }
+
+  return (
+    <>
+      <input
+        ref={ref}
+        type="file"
+        accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
+        className="hidden"
+        onChange={handle}
+      />
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={upload.isPending}
+        onClick={() => ref.current?.click()}
+      >
+        {upload.isPending ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <ImagePlus className="size-4" />
+        )}
+        Logo
+      </Button>
+    </>
   )
 }

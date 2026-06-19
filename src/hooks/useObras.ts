@@ -6,6 +6,9 @@ import type {
   ObraDashboard,
   ObraUsuarioVinculo,
   PermissoesExtras,
+  PerfilUsuario,
+  LogoSlotObra,
+  MapaEvidencias,
   Alerta,
 } from "@/lib/types"
 
@@ -36,6 +39,14 @@ export function useObraUsuarios(id?: string) {
   return useQuery({
     queryKey: ["obras", id, "usuarios"],
     queryFn: () => api.get<ObraUsuarioVinculo[]>(`/obras/${id}/usuarios`),
+    enabled: !!id,
+  })
+}
+
+export function useMapaEvidencias(id?: string) {
+  return useQuery({
+    queryKey: ["obras", id, "mapa-evidencias"],
+    queryFn: () => api.get<MapaEvidencias>(`/obras/${id}/mapa-evidencias`),
     enabled: !!id,
   })
 }
@@ -117,5 +128,30 @@ export function useUpdatePermissoes(obraId: string) {
       api.patch(`/obras/${obraId}/usuarios/${uid}/permissoes`, data),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ["obras", obraId, "usuarios"] }),
+  })
+}
+
+export function useUpdatePerfilObra(obraId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ uid, perfil }: { uid: string; perfil: PerfilUsuario }) =>
+      api.patch(`/obras/${obraId}/usuarios/${uid}`, { perfil }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["obras", obraId, "usuarios"] }),
+  })
+}
+
+export function useUploadObraLogo(obraId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ slot, file }: { slot: LogoSlotObra; file: File }) => {
+      const fd = new FormData()
+      fd.append("arquivo", file)
+      return api.postForm<Obra>(`/obras/${obraId}/logos/${slot}`, fd)
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["obras", obraId] })
+      qc.invalidateQueries({ queryKey: ["obras"] })
+    },
   })
 }

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Field } from "@/components/ui/field"
 import { IALoader } from "@/components/ui/loaders"
 import { cn, formatDate, formatDateTime } from "@/lib/utils"
+import { mediaUrl } from "@/lib/api"
 import type { Obra, MidiaResponse } from "@/lib/types"
 
 const CesiumGlobe = lazy(() =>
@@ -147,9 +148,10 @@ export function EvolucaoVisual({ obra }: { obra: Obra }) {
                       className="overflow-hidden rounded-lg border border-border"
                     >
                       <img
-                        src={f.storage_url}
+                        src={mediaUrl(f.storage_url)}
                         alt=""
                         loading="lazy"
+                        referrerPolicy="no-referrer"
                         className="aspect-square w-full object-cover"
                       />
                     </button>
@@ -171,8 +173,9 @@ export function EvolucaoVisual({ obra }: { obra: Obra }) {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={foto.storage_url}
+              src={mediaUrl(foto.storage_url)}
               alt=""
+              referrerPolicy="no-referrer"
               className="w-full rounded-lg object-contain"
             />
             <div className="mt-3 space-y-1 text-sm">

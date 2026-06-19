@@ -1,7 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom"
 import { useAuthStore } from "@/stores/authStore"
 import { useAuth } from "@/hooks/useAuth"
-import { HardHat } from "lucide-react"
 
 export function ProtectedRoute() {
   const token = useAuthStore((s) => s.access_token)
@@ -11,8 +10,12 @@ export function ProtectedRoute() {
 
   if (isLoading && !usuario) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-dark-bg">
-        <HardHat className="size-10 animate-bounce text-accent" />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <img
+          src="/assets/logos/simbolo.png"
+          alt="Carregando"
+          className="size-16 animate-bounce"
+        />
       </div>
     )
   }

@@ -12,7 +12,17 @@ import {
 } from "cesium"
 import { Viewer, Entity, EntityDescription, CameraFlyTo } from "resium"
 import { formatDateTime } from "@/lib/utils"
-import type { MidiaResponse } from "@/lib/types"
+import { mediaUrl } from "@/lib/api"
+
+// Forma mínima que o mapa precisa — atende tanto MidiaResponse quanto EvidenciaMapa.
+export interface FotoMapa {
+  id_midia: string
+  latitude: number
+  longitude: number
+  storage_url: string
+  data_hora_captura?: string | null
+  ai_analise?: string | null
+}
 
 const TOKEN = import.meta.env.VITE_CESIUM_ION_ACCESS_TOKEN
 if (TOKEN) Ion.defaultAccessToken = TOKEN
@@ -25,7 +35,7 @@ export function CesiumGlobe({
 }: {
   centerLat: number
   centerLon: number
-  fotos: MidiaResponse[]
+  fotos: FotoMapa[]
   height?: number
 }) {
   // OSM como camada base — funciona mesmo sem token Ion.
@@ -87,13 +97,13 @@ export function CesiumGlobe({
             position={Cartesian3.fromDegrees(f.longitude, f.latitude, 4)}
             point={{
               pixelSize: 12,
-              color: Color.fromCssColorString("#F5A623"),
+              color: Color.fromCssColorString("#FBB315"),
               outlineColor: Color.WHITE,
               outlineWidth: 2,
               heightReference: HeightReference.CLAMP_TO_GROUND,
             }}
             billboard={{
-              image: f.storage_url,
+              image: mediaUrl(f.storage_url),
               width: 56,
               height: 56,
               verticalOrigin: VerticalOrigin.BOTTOM,
@@ -104,7 +114,7 @@ export function CesiumGlobe({
             <EntityDescription>
               <div style={{ fontFamily: "sans-serif", color: "#0f172a" }}>
                 <img
-                  src={f.storage_url}
+                  src={mediaUrl(f.storage_url)}
                   alt=""
                   style={{
                     width: "100%",

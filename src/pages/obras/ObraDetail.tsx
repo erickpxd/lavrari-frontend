@@ -10,7 +10,12 @@ import {
   AlertTriangle,
 } from "lucide-react"
 import { toast } from "sonner"
-import { useObra, useObraDashboard, useObraAlertas } from "@/hooks/useObras"
+import {
+  useObra,
+  useObraDashboard,
+  useObraAlertas,
+  useUploadObraLogo,
+} from "@/hooks/useObras"
 import { useObraPerfil } from "@/hooks/useObraPerfil"
 import { useRdos } from "@/hooks/useRdos"
 import { useSaudeObra, usePadroesNC } from "@/hooks/useIA"
@@ -31,6 +36,8 @@ import {
 } from "@/components/ui/table"
 import { HealthGauge } from "@/components/obra/HealthGauge"
 import { UsuariosObraPanel } from "@/components/obra/UsuariosObraPanel"
+import { LogoUploader } from "@/components/obra/LogoUploader"
+import { MapaEvidencias } from "@/components/obra/MapaEvidencias"
 import { LocationLabel } from "@/components/shared/LocationLabel"
 import { EvolucaoVisual } from "@/components/obra/EvolucaoVisual"
 import { WorkflowBadge } from "@/components/rdo/WorkflowBadge"
@@ -40,7 +47,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { SEVERIDADE } from "@/lib/constants"
 import { formatDate } from "@/lib/utils"
 import { api } from "@/lib/api"
-import type { StatusRDO } from "@/lib/types"
+import type { StatusRDO, Obra, LogoSlotObra } from "@/lib/types"
 
 export function ObraDetail() {
   const { id } = useParams<{ id: string }>()
@@ -85,7 +92,9 @@ export function ObraDetail() {
         <TabsList>
           <TabsTrigger value="geral">Visão Geral</TabsTrigger>
           <TabsTrigger value="rdos">RDOs</TabsTrigger>
+          <TabsTrigger value="mapa">Mapa de evidências</TabsTrigger>
           <TabsTrigger value="usuarios">Usuários</TabsTrigger>
+          {isAdmin && <TabsTrigger value="logos">Logos</TabsTrigger>}
           {podeVerSaude && (
             <>
               <TabsTrigger value="evolucao">Evolução Visual</TabsTrigger>
@@ -102,9 +111,17 @@ export function ObraDetail() {
         <TabsContent value="rdos">
           <RdosTab obraId={id!} />
         </TabsContent>
+        <TabsContent value="mapa">
+          <MapaEvidencias obra={obra} />
+        </TabsContent>
         <TabsContent value="usuarios">
           <UsuariosObraPanel obraId={id!} isAdmin={isAdmin} />
         </TabsContent>
+        {isAdmin && (
+          <TabsContent value="logos">
+            <LogosObraTab obraId={id!} obra={obra} />
+          </TabsContent>
+        )}
         {podeVerSaude && (
           <>
             <TabsContent value="evolucao">
@@ -151,6 +168,17 @@ function VisaoGeral({
           <Info label="Fim execução" value={formatDate(obra.data_fim_execucao)} />
           <Info label="Vigência" value={`${formatDate(obra.data_inicio_vigencia)} → ${formatDate(obra.data_fim_vigencia)}`} />
           <Info label="Prazo contratual" value={`${obra.prazo_contratual_dias} dias`} />
+          {obra.art_fiscal_suape && (
+            <Info label="ART Fiscal SUAPE" value={obra.art_fiscal_suape} />
+          )}
+          {obra.art_fiscal_externo && (
+            <Info label="ART Fiscal externo" value={obra.art_fiscal_externo} />
+          )}
+          {obra.endereco && (
+            <div className="sm:col-span-2">
+              <Info label="Endereço" value={obra.endereco} icon />
+            </div>
+          )}
           {obra.latitude_obra != null && (
             <div className="sm:col-span-2">
               <p className="text-xs uppercase tracking-wide text-text-muted">
@@ -161,6 +189,38 @@ function VisaoGeral({
                 lon={obra.longitude_obra}
                 className="mt-0.5"
               />
+            </div>
+          )}
+          {obra.responsaveis && obra.responsaveis.length > 0 && (
+            <div className="sm:col-span-2">
+              <p className="mb-1.5 text-xs uppercase tracking-wide text-text-muted">
+                Responsáveis técnicos
+              </p>
+              <div className="space-y-1.5">
+                {obra.responsaveis.map((r, i) => (
+                  <div
+                    key={i}
+                    className="rounded-lg border border-border p-2.5"
+                  >
+                    <p className="font-medium">
+                      {r.nome}
+                      {r.cargo && (
+                        <span className="font-normal text-text-secondary">
+                          {" "}
+                          · {r.cargo}
+                        </span>
+                      )}
+                    </p>
+                    {(r.art || r.documento) && (
+                      <p className="mt-0.5 text-xs text-text-muted">
+                        {[r.art && `ART ${r.art}`, r.documento]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </CardContent>
@@ -396,6 +456,73 @@ function DossieTab({ obraId, contrato }: { obraId: string; contrato: string }) {
           )}
           Gerar Dossiê PDF
         </Button>
+      </CardContent>
+    </Card>
+  )
+}
+
+function LogosObraTab({ obraId, obra }: { obraId: string; obra: Obra }) {
+  const upload = useUploadObraLogo(obraId)
+  const [slotAtivo, setSlotAtivo] = useState<LogoSlotObra | null>(null)
+
+  function enviar(slot: LogoSlotObra, file: File) {
+    setSlotAtivo(slot)
+    upload.mutate(
+      { slot, file },
+      {
+        onSuccess: () => toast.success("Logo atualizada!"),
+        onError: () => toast.error("Falha ao enviar a logo"),
+        onSettled: () => setSlotAtivo(null),
+      }
+    )
+  }
+
+  const slots: {
+    slot: LogoSlotObra
+    label: string
+    description: string
+    url?: string | null
+  }[] = [
+    {
+      slot: "suape",
+      label: "SUAPE",
+      description: "Logo do órgão exibida no cabeçalho do documento.",
+      url: obra.logo_suape_url,
+    },
+    {
+      slot: "contratada",
+      label: "Construtora contratada",
+      description: "Logo da empresa executora da obra.",
+      url: obra.logo_contratada_url,
+    },
+    {
+      slot: "fiscalizacao_externa",
+      label: "Fiscalização externa",
+      description: "Logo da empresa de fiscalização externa.",
+      url: obra.logo_fiscalizacao_externa_url,
+    },
+  ]
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Logos do documento</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-sm text-text-secondary">
+          As imagens são redimensionadas no servidor preservando a proporção
+          (sem esticar) e aparecem no cabeçalho dos RDOs em PDF.
+        </p>
+        {slots.map((s) => (
+          <LogoUploader
+            key={s.slot}
+            label={s.label}
+            description={s.description}
+            currentUrl={s.url}
+            isPending={upload.isPending && slotAtivo === s.slot}
+            onUpload={(file) => enviar(s.slot, file)}
+          />
+        ))}
       </CardContent>
     </Card>
   )

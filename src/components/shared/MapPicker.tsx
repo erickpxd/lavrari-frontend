@@ -32,6 +32,8 @@ interface MapPickerProps {
   onPick?: (lat: number, lon: number) => void
   height?: number
   interactive?: boolean
+  /** Centro inicial do mapa quando não há ponto marcado (não cria marcador). */
+  initialCenter?: [number, number]
 }
 
 export function MapPicker({
@@ -40,11 +42,12 @@ export function MapPicker({
   onPick,
   height = 280,
   interactive = true,
+  initialCenter,
 }: MapPickerProps) {
   const hasPoint = typeof lat === "number" && typeof lon === "number"
   const center: [number, number] = hasPoint
     ? [lat as number, lon as number]
-    : DEFAULT_CENTER
+    : (initialCenter ?? DEFAULT_CENTER)
 
   return (
     <div
@@ -53,7 +56,7 @@ export function MapPicker({
     >
       <MapContainer
         center={center}
-        zoom={hasPoint ? 15 : 12}
+        zoom={hasPoint ? 15 : initialCenter ? 14 : 12}
         style={{ height: "100%", width: "100%" }}
         scrollWheelZoom={interactive}
       >

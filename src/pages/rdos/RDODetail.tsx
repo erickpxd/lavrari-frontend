@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { ArrowLeft, Calendar, ImageIcon, History, PenLine, MessageSquare } from "lucide-react"
 import { useRdo, useRdoVersoes, useRdoAssinaturas } from "@/hooks/useRdos"
+import { useObra } from "@/hooks/useObras"
 import { useObraPerfil } from "@/hooks/useObraPerfil"
 import { useAuth } from "@/hooks/useAuth"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -26,6 +27,7 @@ export function RDODetail() {
   const navigate = useNavigate()
   const { isAdmin } = useAuth()
   const { data: rdo, isLoading } = useRdo(idRdo)
+  const { data: obra } = useObra(obraId)
   const { perfil, podeAdicionarInfo, podeComentarExtra } = useObraPerfil(obraId)
   const [assinarOpen, setAssinarOpen] = useState(false)
 
@@ -116,7 +118,12 @@ export function RDODetail() {
               <CardTitle>Fotos do RDO</CardTitle>
             </CardHeader>
             <CardContent>
-              <FotoUploader rdoId={rdo.id_rdo} editable={podeEditar} />
+              <FotoUploader
+                rdoId={rdo.id_rdo}
+                editable={podeEditar}
+                obraLat={obra?.latitude_obra}
+                obraLon={obra?.longitude_obra}
+              />
             </CardContent>
           </Card>
         </TabsContent>

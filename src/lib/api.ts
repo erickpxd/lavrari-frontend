@@ -22,6 +22,22 @@ function normalizePath(path: string): string {
   return query ? `${finalPath}?${query}` : finalPath
 }
 
+/**
+ * Normaliza URLs de mídia vindas do backend para uso em <img src>:
+ * - resolve caminhos relativos contra a origem da API;
+ * - força https (evita bloqueio de "mixed content" em página https).
+ */
+export function mediaUrl(url?: string | null): string {
+  if (!url) return ""
+  if (url.startsWith("data:") || url.startsWith("blob:")) return url
+  if (url.startsWith("//")) return `https:${url}`
+  if (!/^https?:\/\//i.test(url)) {
+    const origin = new URL(BASE).origin
+    return `${origin}${url.startsWith("/") ? "" : "/"}${url}`
+  }
+  return url.replace(/^http:\/\//i, "https://")
+}
+
 export class ApiError extends Error {
   status: number
   detail: unknown

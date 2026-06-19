@@ -4,19 +4,26 @@
 
 @layer base {
   :root {
-    --background: 210 40% 96%;
-    --foreground: 222 47% 11%;
+    /* Paleta oficial Laurari */
+    --color-primary-500: #8C4128;
+    --color-primary-200: #D56644;
+    --color-secondary: #FFB76F;
+    --color-yellow: #FBB315;
+    --color-background: #FAF8F4;
+
+    --background: 40 37% 97%;
+    --foreground: 20 35% 15%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 20 35% 15%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --secondary: 210 40% 94%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 94%;
-    --muted-foreground: 215 16% 47%;
-    --border: 214 24% 83%;
-    --input: 214 24% 83%;
-    --ring: 211 100% 20%;
+    --popover-foreground: 20 35% 15%;
+    --secondary: 30 100% 72%;
+    --secondary-foreground: 15 56% 35%;
+    --muted: 36 33% 93%;
+    --muted-foreground: 25 14% 42%;
+    --border: 32 24% 86%;
+    --input: 32 24% 86%;
+    --ring: 15 56% 35%;
     --radius: 0.625rem;
   }
 

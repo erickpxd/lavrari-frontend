@@ -10,23 +10,23 @@ export default defineConfig({
     cesium(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.svg"],
+      includeAssets: ["favicon.svg", "assets/logos/simbolo-icon.png"],
       manifest: {
-        name: "Lavrari — RDO SUAPE",
-        short_name: "Lavrari",
+        name: "Laurari — RDO SUAPE",
+        short_name: "Laurari",
         description: "Registro Diário de Obras — SUAPE/DINFRA",
-        theme_color: "#003366",
-        background_color: "#0A1628",
+        theme_color: "#2A1712",
+        background_color: "#FAF8F4",
         display: "standalone",
         start_url: "/",
         icons: [
           {
-            src: "pwa-192.png",
+            src: "assets/logos/simbolo-icon.png",
             sizes: "192x192",
             type: "image/png",
           },
           {
-            src: "pwa-512.png",
+            src: "assets/logos/simbolo-icon.png",
             sizes: "512x512",
             type: "image/png",
           },
@@ -37,7 +37,12 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         runtimeCaching: [
           {
-            urlPattern: ({ url }) => url.pathname.startsWith("/obras") || url.pathname.startsWith("/rdos"),
+            // Só cacheia navegações do próprio app — nunca respostas de outra
+            // origem (API/object storage), evitando servir 403 antigos de mídia.
+            urlPattern: ({ url, sameOrigin }) =>
+              sameOrigin &&
+              (url.pathname.startsWith("/obras") ||
+                url.pathname.startsWith("/rdos")),
             handler: "StaleWhileRevalidate",
             options: { cacheName: "lavrari-pages" },
           },

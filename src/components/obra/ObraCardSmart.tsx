@@ -1,26 +1,22 @@
-import { useObraDashboard } from "@/hooks/useObras"
-import { useSaudeObra } from "@/hooks/useIA"
-import { useObraPerfil } from "@/hooks/useObraPerfil"
 import { useEmpresas } from "@/hooks/useEmpresas"
 import { useAuth } from "@/hooks/useAuth"
 import { ObraCard } from "./ObraCard"
 import type { Obra } from "@/lib/types"
 
 /**
- * ObraCard que busca dashboard + saúde quando o usuário tem permissão
- * (admin ou fiscal_suape na obra). Para outros perfis, exibe o card simples.
+ * Resolve o nome da empresa contratada (quando o usuário é admin) e repassa
+ * para o ObraCard. A saúde da obra é exibida apenas na página de detalhe.
  */
 export function ObraCardSmart({
   obra,
   fiscalNome,
+  view = "card",
 }: {
   obra: Obra
   fiscalNome?: string
+  view?: "card" | "list"
 }) {
   const { isAdmin } = useAuth()
-  const { podeVerSaude } = useObraPerfil(obra.id_obra)
-  const { data: dashboard } = useObraDashboard(obra.id_obra, podeVerSaude)
-  const { data: saude } = useSaudeObra(obra.id_obra, podeVerSaude)
   const { data: empresas } = useEmpresas(isAdmin)
 
   const empresa = empresas?.find(
@@ -30,14 +26,10 @@ export function ObraCardSmart({
   return (
     <ObraCard
       obra={obra}
-      score={saude?.score}
-      classificacao={saude?.classificacao}
-      percentualPrazo={dashboard?.percentual_prazo}
-      totalRdos={dashboard?.total_rdos}
-      alertas={dashboard?.total_alertas_abertos}
       fiscalNome={fiscalNome}
-      logoUrl={empresa?.logo_url}
       empresaNome={empresa?.razao_social}
+      logoUrl={empresa?.logo_url}
+      view={view}
     />
   )
 }

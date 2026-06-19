@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom"
-import { useForm, Controller } from "react-hook-form"
+import { useForm, Controller, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
-import { ArrowLeft, Loader2 } from "lucide-react"
+import { ArrowLeft, Loader2, Plus, Trash2 } from "lucide-react"
 import { useCreateObra } from "@/hooks/useObras"
 import { useEmpresas } from "@/hooks/useEmpresas"
 import { useUsuarios } from "@/hooks/useUsuarios"
@@ -26,7 +26,19 @@ const schema = z.object({
   id_empresa_contratada: z.string().min(1, "Selecione a empresa"),
   id_empresa_supervisora: z.string().optional(),
   id_fiscal_suape: z.string().min(1, "Selecione o fiscal SUAPE"),
+  art_fiscal_suape: z.string().optional(),
   id_fiscal_externo: z.string().optional(),
+  art_fiscal_externo: z.string().optional(),
+  responsaveis: z
+    .array(
+      z.object({
+        nome: z.string().optional(),
+        cargo: z.string().optional(),
+        art: z.string().optional(),
+        documento: z.string().optional(),
+      })
+    )
+    .optional(),
   data_inicio_vigencia: z.string().min(1, "Obrigatório"),
   data_fim_vigencia: z.string().min(1, "Obrigatório"),
   data_inicio_execucao: z.string().min(1, "Obrigatório"),
@@ -52,15 +64,31 @@ export function ObraCreate() {
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) })
 
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "responsaveis",
+  })
+
   const lat = watch("latitude_obra")
   const lon = watch("longitude_obra")
 
   async function onSubmit(data: FormData) {
     try {
+      const responsaveis = (data.responsaveis ?? [])
+        .filter((r) => r.nome && r.nome.trim())
+        .map((r) => ({
+          nome: r.nome!.trim(),
+          cargo: r.cargo?.trim() || undefined,
+          art: r.art?.trim() || undefined,
+          documento: r.documento?.trim() || undefined,
+        }))
       const payload = {
         ...data,
         id_empresa_supervisora: data.id_empresa_supervisora || undefined,
         id_fiscal_externo: data.id_fiscal_externo || undefined,
+        art_fiscal_suape: data.art_fiscal_suape || undefined,
+        art_fiscal_externo: data.art_fiscal_externo || undefined,
+        responsaveis: responsaveis.length ? responsaveis : undefined,
         logo_suape_url: data.logo_suape_url || undefined,
         logo_contratada_url: data.logo_contratada_url || undefined,
       }
@@ -213,6 +241,9 @@ export function ObraCreate() {
                 )}
               />
             </Field>
+            <Field label="ART Fiscal SUAPE">
+              <Input placeholder="Nº da ART" {...register("art_fiscal_suape")} />
+            </Field>
             <Field label="Fiscal externo">
               <Controller
                 control={control}
@@ -229,6 +260,74 @@ export function ObraCreate() {
                 )}
               />
             </Field>
+            <Field label="ART Fiscal externo">
+              <Input
+                placeholder="Nº da ART"
+                {...register("art_fiscal_externo")}
+              />
+            </Field>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Responsáveis técnicos (opcional)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {fields.length === 0 && (
+              <p className="text-sm text-text-muted">
+                Nenhum responsável adicionado.
+              </p>
+            )}
+            {fields.map((f, i) => (
+              <div
+                key={f.id}
+                className="grid gap-3 rounded-lg border border-border p-3 sm:grid-cols-2"
+              >
+                <Field label="Nome">
+                  <Input
+                    placeholder="Maria Souza"
+                    {...register(`responsaveis.${i}.nome`)}
+                  />
+                </Field>
+                <Field label="Cargo">
+                  <Input
+                    placeholder="Engenheira responsável"
+                    {...register(`responsaveis.${i}.cargo`)}
+                  />
+                </Field>
+                <Field label="ART">
+                  <Input
+                    placeholder="Nº da ART"
+                    {...register(`responsaveis.${i}.art`)}
+                  />
+                </Field>
+                <Field label="Documento (CPF/CREA)">
+                  <Input
+                    placeholder="000.000.000-00"
+                    {...register(`responsaveis.${i}.documento`)}
+                  />
+                </Field>
+                <div className="sm:col-span-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => remove(i)}
+                  >
+                    <Trash2 className="size-4 text-danger" /> Remover
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => append({ nome: "", cargo: "", art: "", documento: "" })}
+            >
+              <Plus className="size-4" /> Adicionar responsável
+            </Button>
           </CardContent>
         </Card>
 

@@ -1,10 +1,14 @@
-import { HardHat, FileText, Brain } from "lucide-react"
+import { FileText, Brain } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function ObraLoader({ label = "Carregando obras…" }: { label?: string }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-12 text-text-secondary">
-      <HardHat className="size-8 animate-bounce text-accent" />
+      <img
+        src="/assets/logos/simbolo.png"
+        alt=""
+        className="size-10 animate-bounce"
+      />
       <span className="text-sm">{label}</span>
     </div>
   )

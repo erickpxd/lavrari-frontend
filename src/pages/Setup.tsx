@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
-import { ShieldCheck, Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { api, ApiError } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -46,21 +46,23 @@ export function Setup() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-dark-bg to-dark-surface p-4">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <span className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-primary-light">
-            <ShieldCheck className="size-9 text-white" />
-          </span>
-          <h1 className="font-heading text-2xl font-bold text-white">
+          <img
+            src="/assets/logos/logo-vertical.png"
+            alt="Laurari"
+            className="mx-auto mb-5 h-28 w-auto"
+          />
+          <h1 className="font-heading text-2xl font-bold text-text-primary">
             Configuração Inicial
           </h1>
-          <p className="mt-1 text-sm text-white/60">
+          <p className="mt-1 text-sm text-text-secondary">
             Crie o primeiro administrador do sistema
           </p>
         </div>
 
-        <div className="rounded-2xl bg-surface p-6 shadow-2xl sm:p-8">
+        <div className="rounded-2xl border border-border bg-surface p-6 shadow-xl sm:p-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Field label="Nome completo" htmlFor="nome" error={errors.nome?.message}>
               <Input id="nome" placeholder="João Silva" {...register("nome")} />

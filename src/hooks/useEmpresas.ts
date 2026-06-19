@@ -30,3 +30,15 @@ export function useUpdateEmpresa(id: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["empresas"] }),
   })
 }
+
+export function useUploadEmpresaLogo(id: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (file: File) => {
+      const fd = new FormData()
+      fd.append("arquivo", file)
+      return api.postForm<Empresa>(`/empresas/${id}/logo`, fd)
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["empresas"] }),
+  })
+}

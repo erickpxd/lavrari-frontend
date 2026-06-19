@@ -6,6 +6,7 @@ import {
   useVincularUsuario,
   useDesvincularUsuario,
   useUpdatePermissoes,
+  useUpdatePerfilObra,
 } from "@/hooks/useObras"
 import { useUsuarios } from "@/hooks/useUsuarios"
 import { Card } from "@/components/ui/card"
@@ -150,7 +151,7 @@ export function UsuariosObraPanel({
                         <Button
                           variant="ghost"
                           size="icon"
-                          title="Gerenciar permissões"
+                          title="Gerenciar acesso"
                           onClick={() => setEditar(v)}
                         >
                           <Settings2 className="size-4" />
@@ -331,7 +332,9 @@ function PermissoesDialog({
   onClose: () => void
 }) {
   const update = useUpdatePermissoes(obraId)
+  const updatePerfil = useUpdatePerfilObra(obraId)
   const atual = vinculo.permissoes_extras ?? {}
+  const [perfil, setPerfil] = useState<PerfilUsuario>(vinculo.perfil)
   const [flags, setFlags] = useState<Record<string, boolean>>({
     pode_adicionar_info: atual.pode_adicionar_info ?? false,
     pode_comentar: atual.pode_comentar ?? false,
@@ -340,9 +343,13 @@ function PermissoesDialog({
   const [expira, setExpira] = useState(
     atual.expira_em ? atual.expira_em.slice(0, 10) : ""
   )
+  const ehExterno = perfil === "fiscal_externo"
 
   async function submit() {
     try {
+      if (perfil !== vinculo.perfil) {
+        await updatePerfil.mutateAsync({ uid: vinculo.id_usuario, perfil })
+      }
       await update.mutateAsync({
         uid: vinculo.id_usuario,
         data: {
@@ -352,20 +359,39 @@ function PermissoesDialog({
           expira_em: expira ? new Date(expira).toISOString() : null,
         },
       })
-      toast.success("Permissões atualizadas!")
+      toast.success("Acesso atualizado!")
       onClose()
     } catch (e) {
       toast.error(e instanceof ApiError ? e.message : "Falha ao salvar")
     }
   }
 
+  const salvando = update.isPending || updatePerfil.isPending
+
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent onClose={onClose}>
         <DialogHeader>
-          <DialogTitle>Permissões extras — {nome}</DialogTitle>
+          <DialogTitle>Gerenciar acesso — {nome}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
+          <Field label="Cargo na obra" required>
+            <Select
+              value={perfil}
+              onChange={(e) => setPerfil(e.target.value as PerfilUsuario)}
+            >
+              {PERFIS.map((p) => (
+                <option key={p} value={p}>
+                  {PERFIL_USUARIO[p]}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          {!ehExterno && (
+            <p className="text-xs text-text-muted">
+              Permissões temporárias se aplicam ao Fiscal Externo.
+            </p>
+          )}
           {PERMISSOES.map((p) => (
             <label
               key={p.key}
@@ -395,9 +421,9 @@ function PermissoesDialog({
           <Button variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          <Button onClick={submit} disabled={update.isPending}>
-            {update.isPending && <Loader2 className="size-4 animate-spin" />}
-            Salvar permissões
+          <Button onClick={submit} disabled={salvando}>
+            {salvando && <Loader2 className="size-4 animate-spin" />}
+            Salvar
           </Button>
         </DialogFooter>
       </DialogContent>

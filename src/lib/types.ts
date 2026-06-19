@@ -71,6 +71,16 @@ export interface Empresa {
 }
 
 // ── Obra ─────────────────────────────────────────────────────────
+export interface ResponsavelObra {
+  nome: string
+  art?: string | null
+  cargo?: string | null
+  documento?: string | null
+}
+
+// Slots de logo do cabeçalho dos documentos da obra.
+export type LogoSlotObra = "suape" | "contratada" | "fiscalizacao_externa"
+
 export interface Obra {
   id_obra: string
   numero_contrato: string
@@ -79,10 +89,14 @@ export interface Obra {
   local_descricao: string
   latitude_obra?: number | null
   longitude_obra?: number | null
+  endereco?: string | null
   id_empresa_contratada: string
   id_empresa_supervisora?: string | null
   id_fiscal_suape: string
+  art_fiscal_suape?: string | null
   id_fiscal_externo?: string | null
+  art_fiscal_externo?: string | null
+  responsaveis?: ResponsavelObra[]
   data_inicio_vigencia: string
   data_fim_vigencia: string
   data_inicio_execucao: string
@@ -90,6 +104,7 @@ export interface Obra {
   prazo_contratual_dias: number
   logo_suape_url?: string | null
   logo_contratada_url?: string | null
+  logo_fiscalizacao_externa_url?: string | null
   criado_em?: string
   atualizado_em?: string
 }
@@ -104,7 +119,10 @@ export interface ObraCreate {
   id_empresa_contratada: string
   id_empresa_supervisora?: string | null
   id_fiscal_suape: string
+  art_fiscal_suape?: string | null
   id_fiscal_externo?: string | null
+  art_fiscal_externo?: string | null
+  responsaveis?: ResponsavelObra[]
   data_inicio_vigencia: string
   data_fim_vigencia: string
   data_inicio_execucao: string
@@ -112,6 +130,46 @@ export interface ObraCreate {
   prazo_contratual_dias: number
   logo_suape_url?: string | null
   logo_contratada_url?: string | null
+  logo_fiscalizacao_externa_url?: string | null
+}
+
+export interface VinculoUsuario {
+  id_obra_usuario: string
+  id_obra: string
+  numero_contrato?: string | null
+  objeto_contratual?: string | null
+  perfil: PerfilUsuario
+  permissoes_extras?: PermissoesExtras | null
+  permissoes_ativas?: string[]
+  expira_em?: string | null
+  criado_em: string
+  atualizado_em: string
+}
+
+export interface StatusDetalhe {
+  status: string
+  label: string
+  quantidade: number
+}
+
+export interface EvidenciaMapa {
+  id_midia: string
+  id_rdo: string
+  numero_registro?: number | null
+  data_relatorio?: string | null
+  latitude: number
+  longitude: number
+  endereco?: string | null
+  storage_url: string
+  data_hora_captura?: string | null
+  ai_analise?: string | null
+}
+
+export interface MapaEvidencias {
+  id_obra: string
+  centro: { lat?: number | null; lon?: number | null }
+  total: number
+  evidencias: EvidenciaMapa[]
 }
 
 export interface ObraDashboard {
@@ -339,7 +397,7 @@ export interface AdminDashboard {
     com_fiscal_externo: number
     com_restricao: number
     por_status: Record<string, number>
-    status_detalhado: Record<string, number>
+    status_detalhado: StatusDetalhe[]
   }
   evidencias: { cadastradas: number; questionadas: number }
   assinaturas: { aplicadas: number; invalidas: number }
