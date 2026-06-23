@@ -9,7 +9,7 @@ georreferenciadas.
 
 ---
 
-## ✨ Principais funcionalidades
+##  Principais funcionalidades
 
 - **Onboarding** de 3 passos + **splash** com motion logo na primeira carga.
 - **Autenticação** (login, refresh automático de token, logout) via Zustand.
@@ -31,7 +31,7 @@ georreferenciadas.
 
 ---
 
-## 🧱 Stack
+##  Stack
 
 - **Vite** + **React 18** + **TypeScript** (strict)
 - **React Router v6** — roteamento client-side
@@ -47,7 +47,7 @@ georreferenciadas.
 
 ---
 
-## 🚀 Como rodar
+##  Como rodar
 
 Pré-requisitos: **Node 18+** e npm.
 
@@ -82,7 +82,7 @@ VITE_CESIUM_ION_ACCESS_TOKEN=
 
 ---
 
-## 🔌 API
+##  API
 
 ```
 Base URL: definida em src/lib/api.ts (BASE)
@@ -99,7 +99,7 @@ Auth:     Authorization: Bearer {access_token}
 
 ---
 
-## 📁 Estrutura
+##  Estrutura
 
 ```
 src/
@@ -123,7 +123,7 @@ src/
 
 ---
 
-## 👥 Perfis e permissões
+##  Perfis e permissões
 
 - **Admin global** (`is_admin`): sidebar Admin, cria obras, gerencia usuários e empresas.
 - **fiscal_suape**: dashboard, saúde, alertas, evolução visual, padrões NC.
@@ -137,7 +137,7 @@ Os cargos (exceto admin) são **por obra** — atribuídos na tela de Usuários
 
 ---
 
-## 🎨 Design system
+##  Design system
 
 - **Fontes:** Poppins (títulos) · Inter (corpo) · JetBrains Mono (hashes/contratos)
 - **Paleta:**
@@ -154,7 +154,7 @@ Botões preenchidos: fundo `#FBB315` com texto/ícone `#8C4128`.
 
 ---
 
-## 🛠️ Convenções
+##  Convenções
 
 - Componentes em PascalCase (arquivo = nome do componente).
 - TanStack Query para **todos** os fetches (sem `useEffect + fetch`).
@@ -165,7 +165,7 @@ Botões preenchidos: fundo `#FBB315` com texto/ícone `#8C4128`.
 
 ---
 
-## ⚠️ Notas da POC
+##  Notas da POC
 
 - A tela de login tem o botão **"Usar usuário de teste"** com credenciais fixas
   para a demonstração — **remover antes de produção**.
